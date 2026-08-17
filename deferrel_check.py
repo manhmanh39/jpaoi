@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.special import gammaincc, gamma as gamma_func
+from uav_hap_core import outage_probability
 
 L = {1: 100000, 2: 200000, 3: 400000}     # bits, Table baseline
 lam0 = {1: 0.4, 2: 0.6, 3: 0.8}           # pkt/s, Table baseline
@@ -8,11 +9,6 @@ B_UH = 1.0e6
 gamma_min = 0.1
 Q_quad = 64
 Tc = 0.002                                 # 2 ms coherence block
-
-
-def outage_probability(bar_gamma, m, gamma_min):
-    a = m * gamma_min / bar_gamma
-    return 1.0 - gammaincc(m, a)
 
 
 def truncated_service_moments(L_k, eta_ij, B_ij, bar_gamma, m, gamma_min, Q=64):
