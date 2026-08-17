@@ -1,24 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-deferral_check.py
-================================================================================
-Sec. IX-D "Outage Assumption Check" -- deferral-based sensitivity analysis.
-
-Compares two ways of handling an outage event (gamma < gamma_min) on the
-UAV->HAP hop, using PAIRED random draws (same channel realizations fed to
-both models) so that Monte Carlo sampling noise is removed from the
-comparison and only the true deferral effect remains:
-
-  (A) REJECTION model (== what evaluate_analytical / simulate_tandem
-      actually implement today): condition the service-time distribution
-      on gamma >= gamma_min. No time is charged for outage draws.
-
-  (B) DEFERRAL model: the transmitter pays Tc=2ms of extra waiting time
-      for every outage realization encountered before the first success,
-      then experiences the SAME successful draw as (A).
-      S_deferral = S_rejection + N_defer * Tc,  N_defer ~ Geometric(p_suc)-1
-================================================================================
-"""
 import numpy as np
 from scipy.special import gammaincc, gamma as gamma_func
 
@@ -53,18 +32,6 @@ def truncated_service_moments(L_k, eta_ij, B_ij, bar_gamma, m, gamma_min, Q=64):
 
 
 def paired_sample_S(L_k, eta_ij, B_ij, bar_gamma, m, gamma_min, Tc, rng):
-    """
-    Draws ONE shared sequence of channel realizations gamma = bar_gamma*Z
-    and evaluates BOTH models on the exact same draws:
-      (A) rejection: outage draws are discarded, no time is charged.
-      (B) deferral:  each outage draw before the successful one costs Tc
-          of extra waiting time, added on top of the identical
-          successful draw.
-    Paired draws remove Monte Carlo sampling noise from the comparison,
-    which otherwise swamps the true (small) deferral effect at low
-    outage probability.
-    Returns (S_rejection, S_deferral, n_defer).
-    """
     c = L_k * np.log(2.0) / (eta_ij * B_ij)
     n_defer = 0
     while True:
